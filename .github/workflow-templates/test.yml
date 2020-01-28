@@ -53,6 +53,9 @@ jobs:
     - *step_checkout
     - *step_environment
 
+    - run: |
+        pip freeze | grep j2cli || sudo pip install j2cli[yaml]
+
     - name: e2e-kind-ovn
       working-directory: ${{ env.WORKDIR }}
       run: |
@@ -70,7 +73,6 @@ jobs:
         
         GO111MODULE="on" go get sigs.k8s.io/kind@v0.7.0
         pushd contrib
-        pip freeze | grep j2cli || sudo pip install j2cli[yaml]
         ./kind.sh
         popd
         pushd $GOPATH/src/k8s.io/kubernetes/
@@ -79,7 +81,9 @@ jobs:
         kubetest --ginkgo-parallel=2 --provider=local --deployment=kind --kind-cluster-name=kind-ovn --test --test_args='--ginkgo.focus=\[sig-network\].*Conformance --disable-log-dump=false --ginkgo.skip=\[Serial\]'
         kubetest --ginkgo-parallel=2 --provider=local --deployment=kind --kind-cluster-name=kind-ovn --test --test_args='--ginkgo.focus=\[sig-network\].*NetworkPolicy --disable-log-dump=false --ginkgo.skip=ingress\saccess|multiple\segress\spolicies|allow\segress\saccess|\[Serial\]'
     
-    - run: kind export logs /tmp/kind/logs
+    - run: |
+        mkdir -p /tmp/kind/logs 
+        kind export logs /tmp/kind/logs
       if: failure()
     - uses: actions/upload-artifact@v1
       if: failure()
