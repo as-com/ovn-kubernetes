@@ -54,6 +54,7 @@ jobs:
     - *step_environment
 
     - run: |
+        cat /proc/cpuinfo
         pip freeze | grep j2cli || sudo pip install j2cli[yaml]
 
     - name: e2e-kind-ovn
