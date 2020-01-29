@@ -64,6 +64,7 @@ jobs:
         cat /proc/cpuinfo
         pip freeze | grep j2cli || pip install j2cli[yaml] --user
         ~/.local/bin/j2
+      working-directory: "${{ env.WORKDIR }}"
     - name: e2e-kind-ovn
       working-directory: "${{ env.WORKDIR }}"
       run: |
