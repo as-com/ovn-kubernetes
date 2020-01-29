@@ -62,7 +62,8 @@ jobs:
         echo "::set-env name=WORKDIR::$GOPATH/src/github.com/ovn-org/ovn-kubernetes"
     - run: |
         cat /proc/cpuinfo
-        pip freeze | grep j2cli || sudo pip install j2cli[yaml]
+        pip freeze | grep j2cli || pip install j2cli[yaml] --user
+        ~/.local/bin/j2
     - name: e2e-kind-ovn
       working-directory: "${{ env.WORKDIR }}"
       run: |
