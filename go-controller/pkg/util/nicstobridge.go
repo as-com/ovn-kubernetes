@@ -174,7 +174,7 @@ func NicToBridge(iface string) (string, error) {
 		"--", "--may-exist", "add-br", bridge,
 		"--", "br-set-external-id", bridge, "bridge-id", bridge,
 		"--", "br-set-external-id", bridge, "bridge-uplink", iface,
-		"--", "set", "bridge", bridge, "fail-mode=standalone",
+		"--", "set", "bridge", bridge, "fail-mode=standalone", "datapath_type=netdev",
 		fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr),
 		"--", "--may-exist", "add-port", bridge, iface,
 		"--", "set", "port", iface, "other-config:transient=true")
