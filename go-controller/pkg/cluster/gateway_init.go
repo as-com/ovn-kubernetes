@@ -29,7 +29,7 @@ func bridgedGatewayNodeSetup(nodeName, bridgeName, bridgeInterface string, syncB
 		var err error
 
 		stdout, stderr, err := util.RunOVSVsctl("set", "bridge",
-			bridgeName, "other-config:hwaddr="+macAddress)
+			bridgeName, "other-config:hwaddr="+macAddress, "datapath_type=netdev")
 		if err != nil {
 			return "", "", fmt.Errorf("Failed to set bridge, stdout: %q, stderr: %q, "+
 				"error: %v", stdout, stderr, err)
