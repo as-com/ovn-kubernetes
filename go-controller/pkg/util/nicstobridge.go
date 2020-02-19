@@ -172,17 +172,35 @@ func NicToBridge(iface string) (string, error) {
 	bridge := getBridgeName(iface)
 	stdout, stderr, err := RunOVSVsctl(
 		"--", "--may-exist", "add-br", bridge,
-		"--", "br-set-external-id", bridge, "bridge-id", bridge,
-		"--", "br-set-external-id", bridge, "bridge-uplink", iface,
 		"--", "set", "bridge", bridge, "fail-mode=standalone", "datapath_type=netdev",
-		fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr),
-		"--", "--may-exist", "add-port", bridge, iface,
-		"--", "set", "port", iface, "other-config:transient=true")
+		"--", "br-set-external-id", bridge, "bridge-id", bridge)
+	//		"--", "br-set-external-id", bridge, "bridge-uplink", iface,
+	//		fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr)
+	//		"--", "--may-exist", "add-port", bridge, iface,
+	//		"--", "set", "port", iface, "other-config:transient=true")
 	if err != nil {
 		logrus.Errorf("Failed to create OVS bridge, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
 		return "", err
 	}
 	logrus.Infof("Successfully created OVS bridge %q", bridge)
+
+	stdout, stderr, err = RunOVSVsctl(
+		"add-port", bridge, "tap0")
+	if err != nil {
+		logrus.Errorf("Failed to create OVS bridge step 2, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
+		return "", err
+	}
+
+	stdout, stderr, err = RunOVSVsctl(
+		"--", "--may-exist", "add-br", bridge+"-phy",
+		"--", "set", "bridge", bridge+"-phy", "datapath_type=netdev",
+		"--", "br-set-external-id", bridge+"-phy", "bridge-id", bridge+"-phy",
+		"--", "set", "bridge", bridge+"-phy", "fail-mode=standalone",
+		fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr))
+	if err != nil {
+		logrus.Errorf("Failed to create OVS bridge step 3, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
+		return "", err
+	}
 
 	setupDefaultFile()
 
