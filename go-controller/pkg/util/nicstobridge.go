@@ -170,19 +170,50 @@ func NicToBridge(iface string) (string, error) {
 	}
 
 	bridge := getBridgeName(iface)
-	stdout, stderr, err := RunOVSVsctl(
-		"--", "--may-exist", "add-br", bridge,
-		"--", "br-set-external-id", bridge, "bridge-id", bridge,
-		"--", "br-set-external-id", bridge, "bridge-uplink", iface,
-		"--", "set", "bridge", bridge, "fail-mode=standalone",
-		fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr),
-		"--", "--may-exist", "add-port", bridge, iface,
-		"--", "set", "port", iface, "other-config:transient=true")
+	var stdout, stderr string
+
+	if os.Getenv("OVNKUBE_USERSPACE") == "1" {
+		panic("this test needs to fail")
+		stdout, stderr, err = RunOVSVsctl(
+			"--", "--may-exist", "add-br", bridge,
+			"--", "set", "bridge", bridge, "fail-mode=standalone", "datapath_type=netdev",
+			"--", "br-set-external-id", bridge, "bridge-id", bridge)
+	} else {
+		stdout, stderr, err = RunOVSVsctl(
+			"--", "--may-exist", "add-br", bridge,
+			"--", "br-set-external-id", bridge, "bridge-id", bridge,
+			"--", "br-set-external-id", bridge, "bridge-uplink", iface,
+			"--", "set", "bridge", bridge, "fail-mode=standalone",
+			fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr),
+			"--", "--may-exist", "add-port", bridge, iface,
+			"--", "set", "port", iface, "other-config:transient=true")
+	}
+
 	if err != nil {
 		logrus.Errorf("Failed to create OVS bridge, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
 		return "", err
 	}
 	logrus.Infof("Successfully created OVS bridge %q", bridge)
+
+	if os.Getenv("OVNKUBE_USERSPACE") == "1" {
+		stdout, stderr, err = RunOVSVsctl(
+			"add-port", bridge, "tap0")
+		if err != nil {
+			logrus.Errorf("Failed to attach userspace OVS bridge to tap0, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
+			return "", err
+		}
+
+		stdout, stderr, err = RunOVSVsctl(
+			"--", "--may-exist", "add-br", bridge+"-phy",
+			"--", "set", "bridge", bridge+"-phy", "datapath_type=netdev",
+			"--", "br-set-external-id", bridge+"-phy", "bridge-id", bridge+"-phy",
+			"--", "set", "bridge", bridge+"-phy", "fail-mode=standalone",
+			fmt.Sprintf("other_config:hwaddr=%s", ifaceLink.Attrs().HardwareAddr))
+		if err != nil {
+			logrus.Errorf("Failed to create OVS bridge-phy, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
+			return "", err
+		}
+	}
 
 	setupDefaultFile()
 
