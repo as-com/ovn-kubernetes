@@ -163,7 +163,8 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v1
       with:
-        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}
+        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}-${{ matrix.userspace
+          }}
         path: "/tmp/kind/logs"
   e2e-shard-np:
     name: e2e-kind-ovn-shard-np
@@ -247,7 +248,8 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v1
       with:
-        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}
+        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}-${{ matrix.userspace
+          }}
         path: "/tmp/kind/logs"
   e2e-shard-s:
     name: e2e-kind-ovn-shard-s
@@ -330,7 +332,8 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v1
       with:
-        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}
+        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}-${{ matrix.userspace
+          }}
         path: "/tmp/kind/logs"
   e2e-shard-other:
     name: e2e-kind-ovn-shard-other
@@ -413,5 +416,6 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v1
       with:
-        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}
+        name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}-${{ matrix.userspace
+          }}
         path: "/tmp/kind/logs"
