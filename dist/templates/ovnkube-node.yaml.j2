@@ -146,6 +146,9 @@ spec:
       - name: ovnkube-node
         image: "{{ ovn_image | default('docker.io/ovnkube/ovn-daemonset:latest') }}"
         imagePullPolicy: "{{ ovn_image_pull_policy | default('IfNotPresent') }}"
+        env:
+        - name: OVNKUBE_USERSPACE
+          value: "{{ OVNKUBE_USERSPACE }}"
 
         command: ["/root/ovnkube.sh", "ovn-node"]
 
