@@ -115,6 +115,12 @@ jobs:
         pushd contrib
         ./kind.sh
         popd
+    - name: Upload file
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: yaml-${{ github.run_id }}-${{ env.JOB_NAME }}-${{ matrix.userspace }}
+        path: ${{ env.WORKDIR }}/dist/yaml
 
     - name: e2e-kind-ovn-shard-n
       working-directory: ${{ env.WORKDIR }}
