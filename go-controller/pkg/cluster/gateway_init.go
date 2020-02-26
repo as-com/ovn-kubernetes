@@ -93,12 +93,14 @@ func (cluster *OvnClusterController) initGateway(
 	var annotations map[string]map[string]string
 	switch config.Gateway.Mode {
 	case config.GatewayModeLocal:
+		logrus.Warnf("initGateway: LOCAL")
 		systemID, err = util.GetNodeChassisID()
 		if err != nil {
 			return nil, nil, err
 		}
 		annotations, err = initLocalnetGateway(nodeName, subnet, cluster.watchFactory)
 	case config.GatewayModeShared:
+		logrus.Warnf("initGateway: SHARED")
 		systemID, err = util.GetNodeChassisID()
 		if err != nil {
 			return nil, nil, err
@@ -123,6 +125,7 @@ func (cluster *OvnClusterController) initGateway(
 		annotations, prFn, err = initSharedGateway(nodeName, subnet, gatewayNextHop, gatewayIntf,
 			cluster.watchFactory)
 	case config.GatewayModeDisabled:
+		logrus.Warnf("initGateway: DISABLED")
 		annotations = map[string]map[string]string{
 			ovn.OvnDefaultNetworkGateway: {
 				ovn.OvnNodeGatewayMode: string(config.GatewayModeDisabled),

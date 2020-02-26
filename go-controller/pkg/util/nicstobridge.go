@@ -164,6 +164,8 @@ func setupDefaultFile() {
 // NicToBridge creates a OVS bridge for the 'iface' and also moves the IP
 // address and routes of 'iface' to OVS bridge.
 func NicToBridge(iface string) (string, error) {
+	logrus.Warnf("START NicToBridge")
+
 	ifaceLink, err := netlink.LinkByName(iface)
 	if err != nil {
 		return "", err
