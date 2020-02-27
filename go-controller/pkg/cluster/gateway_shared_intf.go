@@ -254,7 +254,7 @@ func initSharedGateway(nodeName string, subnet, gwNextHop, gwIntf string,
 
 	if bridgeName, _, err = util.RunOVSVsctl("--", "port-to-br", gwIntf); err == nil {
 		// This is an OVS bridge's internal port
-		logrus.Warnf("This is an OVS bridge's internal port")
+		logrus.Warnf("initSharedGateway: This is an OVS bridge's internal port")
 		uplinkName, err = util.GetNicName(bridgeName)
 		if err != nil {
 			return nil, nil, err
@@ -262,7 +262,7 @@ func initSharedGateway(nodeName string, subnet, gwNextHop, gwIntf string,
 	} else if _, _, err := util.RunOVSVsctl("--", "br-exists", gwIntf); err != nil {
 		// This is not a OVS bridge. We need to create a OVS bridge
 		// and add cluster.GatewayIntf as a port of that bridge.
-		logrus.Warnf("This is not a OVS bridge.")
+		logrus.Warnf("initSharedGateway: This is not a OVS bridge.")
 		bridgeName, err = util.NicToBridge(gwIntf)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to convert %s to OVS bridge: %v",
@@ -273,6 +273,7 @@ func initSharedGateway(nodeName string, subnet, gwNextHop, gwIntf string,
 		brCreated = true
 	} else {
 		// gateway interface is an OVS bridge
+		logrus.Warnf("initSharedGateway: gateway interface is an OVS bridge")
 		uplinkName, err = getIntfName(gwIntf)
 		if err != nil {
 			return nil, nil, err

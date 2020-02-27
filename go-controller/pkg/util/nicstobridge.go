@@ -175,7 +175,7 @@ func NicToBridge(iface string) (string, error) {
 	var stdout, stderr string
 
 	if os.Getenv("OVNKUBE_USERSPACE") == "1" {
-		panic("Using userspace codepath!")
+		logrus.Warnf("Using userspace codepath! NETDEV NETDEV")
 		stdout, stderr, err = RunOVSVsctl(
 			"--", "--may-exist", "add-br", bridge,
 			"--", "set", "bridge", bridge, "fail-mode=standalone", "datapath_type=netdev",
