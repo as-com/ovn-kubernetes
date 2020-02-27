@@ -38,9 +38,6 @@ spec:
 
       # ovsdb-server and ovs-switchd daemons
       - name: ovs-daemons
-        env:
-        - name: OVNKUBE_USERSPACE
-          value: "{{ OVNKUBE_USERSPACE }}"
         image: "{{ ovn_image | default('docker.io/ovnkube/ovn-daemonset:latest') }}"
         imagePullPolicy: "{{ ovn_image_pull_policy | default('IfNotPresent') }}"
 
@@ -93,9 +90,6 @@ spec:
               command: ["/root/ovnkube.sh", "cleanup-ovs-server"]
 
       - name: ovn-controller
-        env:
-        - name: OVNKUBE_USERSPACE
-          value: "{{ OVNKUBE_USERSPACE }}"
         image: "{{ ovn_image | default('docker.io/ovnkube/ovn-daemonset:latest') }}"
         imagePullPolicy: "{{ ovn_image_pull_policy | default('IfNotPresent') }}"
 
@@ -124,6 +118,8 @@ spec:
             cpu: 100m
             memory: 300Mi
         env:
+        - name: OVNKUBE_USERSPACE
+          value: "{{ OVNKUBE_USERSPACE }}"
         - name: OVN_DAEMONSET_VERSION
           value: "3"
         - name: K8S_APISERVER
@@ -152,9 +148,6 @@ spec:
       - name: ovnkube-node
         image: "{{ ovn_image | default('docker.io/ovnkube/ovn-daemonset:latest') }}"
         imagePullPolicy: "{{ ovn_image_pull_policy | default('IfNotPresent') }}"
-        env:
-        - name: OVNKUBE_USERSPACE
-          value: "{{ OVNKUBE_USERSPACE }}"
 
         command: ["/root/ovnkube.sh", "ovn-node"]
 
@@ -231,6 +224,8 @@ spec:
           value: "{{ ovn_gateway_mode }}"
         - name: OVN_GATEWAY_OPTS
           value: "{{ ovn_gateway_opts }}"
+        - name: OVNKUBE_USERSPACE
+          value: "{{ OVNKUBE_USERSPACE }}"
 
         ports:
         - name: healthz
