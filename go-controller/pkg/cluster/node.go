@@ -191,6 +191,9 @@ func (cluster *OvnClusterController) StartClusterNode(name string) error {
 
 	wg.Add(len(readyFuncs))
 
+	stdout, stderr, err := util.RunOVSVsctl("show", "br"+config.Gateway.Interface)
+	logrus.Debugf("SHOW BR: stdout: %s stderr: %s", stdout, stderr)
+
 	// Set node annotations
 	err = cluster.Kube.SetAnnotationsOnNode(node, nodeAnnotations)
 	if err != nil {
