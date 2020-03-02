@@ -198,12 +198,12 @@ func NicToBridge(iface string) (string, error) {
 	logrus.Infof("Successfully created OVS bridge %q", bridge)
 
 	if os.Getenv("OVNKUBE_USERSPACE") == "1" {
-		stdout, stderr, err = RunOVSVsctl(
-			"add-port", bridge, "tap0")
-		if err != nil {
-			logrus.Errorf("Failed to attach userspace OVS bridge to tap0, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
-			return "", err
-		}
+		// stdout, stderr, err = RunOVSVsctl(
+		// 	"add-port", bridge, "tap0")
+		// if err != nil {
+		// 	logrus.Errorf("Failed to attach userspace OVS bridge to tap0, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
+		// 	return "", err
+		// }
 
 		stdout, stderr, err = RunOVSVsctl(
 			"--", "--may-exist", "add-br", bridge+"-phy",
