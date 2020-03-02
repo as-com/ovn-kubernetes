@@ -27,7 +27,7 @@ func createManagementPortGeneric(nodeName string, localSubnet *net.IPNet) (strin
 	nodeName = strings.ToLower(nodeName)
 
 	// Make sure br-int is created.
-	stdout, stderr, err := util.RunOVSVsctl("--", "--may-exist", "add-br", "br-int")
+	stdout, stderr, err := util.RunOVSVsctl("--", "--may-exist", "add-br", "br-int", "--", "set", "bridge", "br-int", "datapath_type=netdev")
 	if err != nil {
 		logrus.Errorf("Failed to create br-int, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
 		return "", "", "", "", "", err

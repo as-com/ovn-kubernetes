@@ -240,9 +240,6 @@ func runOvnKube(ctx *cli.Context) error {
 		}
 	}
 
-	stdout, stderr, err := util.RunOVSVsctl("show", "br"+config.Gateway.Interface)
-	logrus.Debugf("%s %s", stdout, stderr)
-
 	// run forever
 	select {}
 }
