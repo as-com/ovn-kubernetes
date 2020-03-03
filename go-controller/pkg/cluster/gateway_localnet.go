@@ -146,7 +146,7 @@ func initLocalnetGateway(nodeName string,
 	// Create a localnet OVS bridge.
 	localnetBridgeName := "br-local"
 	_, stderr, err := util.RunOVSVsctl("--may-exist", "add-br",
-		localnetBridgeName, "--", "set-br", localnetBridgeName, "datapath=netdev")
+		localnetBridgeName, "--", "set", "bridge", localnetBridgeName, "datapath=netdev")
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create localnet bridge %s"+
 			", stderr:%s (%v)", localnetBridgeName, stderr, err)
