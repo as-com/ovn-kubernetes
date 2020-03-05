@@ -36,6 +36,15 @@ func createManagementPortGeneric(nodeName string, localSubnet *net.IPNet) (strin
 	// Create a OVS internal interface.
 	interfaceName := util.GetK8sMgmtIntfName(nodeName)
 
+	stdout, stderr, err = util.RunOVSVsctl("--", "--may-exist", "add-port",
+		"br-int", interfaceName, "--", "set", "interface", interfaceName,
+		"type=internal", "mtu_request="+fmt.Sprintf("%d", config.Default.MTU),
+		"external-ids:iface-id=k8s-"+nodeName)
+	if err != nil {
+		logrus.Errorf("Failed to add port to br-int, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
+		return "", "", "", "", "", err
+	}
+
 	macAddress, err := util.GetOVSPortMACAddress(interfaceName)
 	if err != nil {
 		logrus.Errorf("Failed to get management port MAC address: %v", err)
@@ -48,15 +57,6 @@ func createManagementPortGeneric(nodeName string, localSubnet *net.IPNet) (strin
 		"--", "set", "bridge", "br-phy", "fail-mode=standalone", fmt.Sprintf("other_config:hwaddr=%s", macAddress))
 	if err != nil {
 		logrus.Errorf("Failed to create br-phy, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
-		return "", "", "", "", "", err
-	}
-
-	stdout, stderr, err = util.RunOVSVsctl("--", "--may-exist", "add-port",
-		"br-int", interfaceName, "--", "set", "interface", interfaceName,
-		"type=internal", "mtu_request="+fmt.Sprintf("%d", config.Default.MTU),
-		"external-ids:iface-id=k8s-"+nodeName)
-	if err != nil {
-		logrus.Errorf("Failed to add port to br-int, stdout: %q, stderr: %q, error: %v", stdout, stderr, err)
 		return "", "", "", "", "", err
 	}
 
