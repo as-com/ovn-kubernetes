@@ -240,16 +240,26 @@ func (n *OvnNode) Start() error {
 	// Initialize gateway resources on the node
 	if err := n.initGateway(subnet.String(), nodeAnnotator, waiter); err != nil {
 		return err
+
 	}
+
+	stdout, stderr, err := util.RunOVSVsctl("show")
+	logrus.Debugf("SHOW: stdout: %s stderr: %s", stdout, stderr)
 
 	// Initialize management port resources on the node
 	if err := createManagementPort(n.name, subnet, nodeAnnotator, waiter); err != nil {
 		return err
 	}
 
+	stdout, stderr, err = util.RunOVSVsctl("show")
+	logrus.Debugf("SHOW: stdout: %s stderr: %s", stdout, stderr)
+
 	if err := nodeAnnotator.Run(); err != nil {
 		return fmt.Errorf("Failed to set node %s annotations: %v", n.name, err)
 	}
+
+	stdout, stderr, err = util.RunOVSVsctl("show")
+	logrus.Debugf("SHOW: stdout: %s stderr: %s", stdout, stderr)
 
 	// Wait for management port and gateway resources to be created by the master
 	klog.Infof("Waiting for gateway and management port readiness...")
