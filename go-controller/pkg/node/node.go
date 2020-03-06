@@ -243,7 +243,7 @@ func (n *OvnNode) Start() error {
 
 	}
 
-	stdout, stderr, err := util.RunOVSVsctl("show")
+	stdout, stderr, err := util.RunOVSVsctl("-v", "show")
 	klog.Infof("SHOW: stdout: %s stderr: %s", stdout, stderr)
 
 	// Initialize management port resources on the node
@@ -251,14 +251,14 @@ func (n *OvnNode) Start() error {
 		return err
 	}
 
-	stdout, stderr, err = util.RunOVSVsctl("show")
+	stdout, stderr, err = util.RunOVSVsctl("-v", "show")
 	klog.Infof("SHOW: stdout: %s stderr: %s", stdout, stderr)
 
 	if err := nodeAnnotator.Run(); err != nil {
 		return fmt.Errorf("Failed to set node %s annotations: %v", n.name, err)
 	}
 
-	stdout, stderr, err = util.RunOVSVsctl("show")
+	stdout, stderr, err = util.RunOVSVsctl("-v", "show")
 	klog.Infof("SHOW: stdout: %s stderr: %s", stdout, stderr)
 
 	// Wait for management port and gateway resources to be created by the master
