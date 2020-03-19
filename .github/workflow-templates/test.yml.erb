@@ -62,7 +62,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ env.GOPATH }}/src/k8s.io/kubernetes/
-        key: k8s-go-2-${{ env.K8S_VERSION }}
+        key: k8s-go-3-${{ env.K8S_VERSION }}
 
     - << : *step_gosetup
       if: steps.cache-k8s.outputs.cache-hit != 'true'
@@ -229,7 +229,6 @@ jobs:
   e2eeeeee:
     name: e2e-kind-ovn-shard-other
     runs-on: ubuntu-latest
-    needs: k8s
     env:
       JOB_NAME: "e2e-shard-other"
     steps:
