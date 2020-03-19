@@ -251,6 +251,9 @@ jobs:
     - name: e2e-kind-ovn-shard-other
       working-directory: ${{ env.WORKDIR }}
       run: |
+        pushd test/e2e
+        go mod download
+        popd
         pushd $GOPATH/src/k8s.io/kubernetes/
         export KUBERNETES_CONFORMANCE_TEST=y
         export KUBECONFIG=${HOME}/admin.conf
