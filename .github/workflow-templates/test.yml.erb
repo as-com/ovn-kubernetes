@@ -227,7 +227,7 @@ jobs:
     - *step_upload_logs
   
   e2eeeeee:
-    name: e2e-kind-ovn-shard-other
+    name: e2eeeeee
     runs-on: ubuntu-latest
     env:
       JOB_NAME: "e2e-shard-other"
@@ -248,9 +248,10 @@ jobs:
 
     - *step_kind_setup
 
-    - name: e2e-kind-ovn-shard-other
+    - name: e2eeeeee
       working-directory: ${{ env.WORKDIR }}
       run: |
+        set -x
         pushd test/e2e
         go mod download
         popd
