@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo"
@@ -140,14 +141,20 @@ var _ = Describe("E2e", func() {
 			checkConnectivityToHost(f, "", "connectivity-test", "8.8.8.8", 53, 30))
 	})
 
-	ginkgo.It("should provide Internet connection continuously", func() {
+	ginkgo.It("should provide Internet connection continuously when ovn-k8s pod is killed", func() {
 		ginkgo.By("Running container which tries to connect to 8.8.8.8 in a loop")
 
 		readyChan, errChan := make(chan int), make(chan error)
 		go checkContinuousConnectivity(f, "", "connectivity-test-continuous", "8.8.8.8", 53, 30, readyChan, errChan)
 
 		<-readyChan
-		framework.Logf("Container is ready, waiting...")
+		framework.Logf("Container is ready, waiting a few seconds")
+
+		time.Sleep(10 * time.Second)
+		podClient := f.ClientSet.CoreV1().Pods("ovn-kubernetes")
+		err := podClient.Delete("ovnkube-node", metav1.NewDeleteOptions(0))
+
+		framework.ExpectNoError(err, "should delete ovnkube-node pod")
 
 		framework.ExpectNoError(<-errChan)
 	})
