@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/onsi/ginkgo"
@@ -152,14 +153,17 @@ var _ = Describe("E2e", func() {
 
 		time.Sleep(10 * time.Second)
 		podClient := f.ClientSet.CoreV1().Pods("ovn-kubernetes")
-		podClient2 := f.ClientSet.CoreV1().Pods(f.Namespace.Name)
 
 		podList, _ := podClient.List(metav1.ListOptions{})
-		podList2, _ := podClient2.List(metav1.ListOptions{})
-		framework.Logf("ovn-kubernetes %q", podList.String())
-		framework.Logf("framework namespace %q", podList2.String())
+		podName := ""
+		for _, pod := range podList.Items {
+			if strings.HasPrefix(pod.Name, "ovnkube-node") {
+				podName = pod.Name
+				break
+			}
+		}
 
-		err := podClient2.Delete("ovnkube-node", metav1.NewDeleteOptions(0))
+		err := podClient.Delete(podName, metav1.NewDeleteOptions(0))
 
 		framework.ExpectNoError(err, "should delete ovnkube-node pod")
 
