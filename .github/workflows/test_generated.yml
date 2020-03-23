@@ -392,11 +392,12 @@ jobs:
       with:
         name: kind-logs-${{ github.run_id }}-${{ env.JOB_NAME }}
         path: "/tmp/kind/logs"
-  e2eeeeee:
-    name: e2eeeeee
+  e2e-ovn-k8s:
+    name: e2e-ovn-k8s
     runs-on: ubuntu-latest
+    needs: k8s
     env:
-      JOB_NAME: e2e-shard-other
+      JOB_NAME: e2e-ovn-k8s
     steps:
     - name: Set up Go 1.12
       uses: actions/setup-go@v1
@@ -415,12 +416,18 @@ jobs:
         mv $GITHUB_WORKSPACE $GOPATH/src/github.com/ovn-org/ovn-kubernetes
         echo "::set-env name=WORKDIR::$GOPATH/src/github.com/ovn-org/ovn-kubernetes"
         mkdir -p $GITHUB_WORKSPACE
+    - name: Cache Kubernetes
+      id: cache-k8s
+      uses: actions/cache@v1
+      with:
+        path: "${{ env.GOPATH }}/src/k8s.io/kubernetes/"
+        key: k8s-go-3-${{ env.K8S_VERSION }}
     - name: Build and install Kubernetes
       working-directory: "${{ env.WORKDIR }}"
       if: steps.cache-k8s.outputs.cache-hit != 'true'
       run: |
         set -x
-        git clone --single-branch --branch patch-1 https://github.com/as-com/kubernetes.git $GOPATH/src/k8s.io/kubernetes/
+        git clone --single-branch --branch $K8S_VERSION https://github.com/kubernetes/kubernetes.git $GOPATH/src/k8s.io/kubernetes/
         pushd $GOPATH/src/k8s.io/kubernetes/
         make WHAT="test/e2e/e2e.test vendor/github.com/onsi/ginkgo/ginkgo cmd/kubectl"
         rm -rf .git
@@ -442,7 +449,7 @@ jobs:
         pushd contrib
         ./kind.sh
         popd
-    - name: e2eeeeee
+    - name: e2e-ovn-k8s
       working-directory: "${{ env.WORKDIR }}"
       run: |
         set -x
@@ -454,6 +461,9 @@ jobs:
         export KUBECONFIG=${HOME}/admin.conf
         export MASTER_NAME=${KIND_CLUSTER_NAME}-control-plane
         export NODE_NAMES=${MASTER_NAME}
+
+        sed -i -e 's/"${ginkgo}" "${ginkgo_args[@]:+${ginkgo_args[@]}}" "${e2e_test}"/pushd $GOPATH/src/github.com/ovn-org/ovn-kubernetes/test/e2e\nGO111MODULE=on "${ginkgo}" "${ginkgo_args[@]:+${ginkgo_args[@]}}"/' hack/ginkgo-e2e.sh
+
         kubetest --provider=local --deployment=kind --kind-cluster-name=kind-ovn --test --test_args='--disable-log-dump=false'
     - name: Export logs
       if: always()
