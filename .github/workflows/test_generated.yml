@@ -462,7 +462,7 @@ jobs:
         export MASTER_NAME=${KIND_CLUSTER_NAME}-control-plane
         export NODE_NAMES=${MASTER_NAME}
 
-        sed -E -i 's/"\$\{ginkgo\}" "\$\{ginkgo_args\[\@\]\:\+\$\{ginkgo_args\[\@\]\}\}" "\$\{e2e_test\}"/pushd \$GOPATH\/src\/github.com\/ovn-org\/ovn-kubernetes\/test\/e2e\nGO111MODULE=on "\$\{ginkgo\}" "\$\{ginkgo_args\[\@\]\:\+\$\{ginkgo_args\[\@\]\}\}"/;t;d' hack/ginkgo-e2e.sh
+        sed -E -i 's/"\$\{ginkgo\}" "\$\{ginkgo_args\[\@\]\:\+\$\{ginkgo_args\[\@\]\}\}" "\$\{e2e_test\}"/pushd \$GOPATH\/src\/github.com\/ovn-org\/ovn-kubernetes\/test\/e2e\nGO111MODULE=on "\$\{ginkgo\}" "\$\{ginkgo_args\[\@\]\:\+\$\{ginkgo_args\[\@\]\}\}"/' hack/ginkgo-e2e.sh
 
         kubetest --provider=local --deployment=kind --kind-cluster-name=kind-ovn --test --test_args='--disable-log-dump=false'
     - name: Export logs
