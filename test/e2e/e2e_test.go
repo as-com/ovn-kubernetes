@@ -164,8 +164,8 @@ var _ = Describe("E2e", func() {
 		}
 
 		err := podClient.Delete(podName, metav1.NewDeleteOptions(0))
-
 		framework.ExpectNoError(err, "should delete ovnkube-node pod")
+		framework.Logf("Deleted ovnkube-node %q", podName)
 
 		framework.ExpectNoError(<-errChan)
 	})
