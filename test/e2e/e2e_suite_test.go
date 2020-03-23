@@ -17,6 +17,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// https://github.com/kubernetes/kubernetes/blob/v1.16.4/test/e2e/e2e_test.go#L62
+
 // handleFlags sets up all flags and parses the command line.
 func handleFlags() {
 	config.CopyFlags(config.Flags, flag.CommandLine)
