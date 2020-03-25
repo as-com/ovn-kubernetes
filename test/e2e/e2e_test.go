@@ -111,4 +111,33 @@ var _ = Describe("e2e control plane", func() {
 
 		framework.ExpectNoError(<-errChan)
 	})
+
+	ginkgo.It("should provide Internet connection continuously when master is killed", func() {
+		ginkgo.By("Running container which tries to connect to 8.8.8.8 in a loop")
+
+		readyChan, errChan := make(chan bool), make(chan error)
+		go checkContinuousConnectivity(f, "", "connectivity-test-continuous", "8.8.8.8", 53, 30, readyChan, errChan)
+
+		<-readyChan
+		framework.Logf("Container is ready, waiting a few seconds")
+
+		time.Sleep(10 * time.Second)
+
+		podClient := f.ClientSet.CoreV1().Pods("ovn-kubernetes")
+
+		podList, _ := podClient.List(metav1.ListOptions{})
+		podName := ""
+		for _, pod := range podList.Items {
+			if strings.HasPrefix(pod.Name, "ovnkube-master") {
+				podName = pod.Name
+				break
+			}
+		}
+
+		err := podClient.Delete(podName, metav1.NewDeleteOptions(0))
+		framework.ExpectNoError(err, "should delete ovnkube-master pod")
+		framework.Logf("Deleted ovnkube-master %q", podName)
+
+		framework.ExpectNoError(<-errChan)
+	})
 })
