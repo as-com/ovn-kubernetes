@@ -3,6 +3,7 @@ package e2e_test
 import (
 	"fmt"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -206,6 +207,23 @@ var _ = Describe("e2e control plane", func() {
 		err := podClient.Delete(podName, metav1.NewDeleteOptions(0))
 		framework.ExpectNoError(err, "should delete ovnkube-master pod")
 		framework.Logf("Deleted ovnkube-master %q", podName)
+
+		framework.ExpectNoError(<-errChan)
+	})
+
+	ginkgo.It("should provide Internet connection continuously when master node is rebooted", func() {
+		ginkgo.By("Running container which tries to connect to 8.8.8.8 in a loop")
+
+		podChan, errChan := make(chan *v1.Pod), make(chan error)
+		go checkContinuousConnectivity(f, "", "connectivity-test-continuous", "8.8.8.8", 53, 30, podChan, errChan)
+
+		testPod := <-podChan
+		framework.Logf("Test pod running on %q", testPod.Spec.NodeName)
+
+		cmd := exec.Command("docker", "restart", "-t0", "ovn-control-plane")
+		err := cmd.Run()
+
+		framework.ExpectNoError(err)
 
 		framework.ExpectNoError(<-errChan)
 	})
