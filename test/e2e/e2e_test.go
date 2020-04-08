@@ -47,7 +47,7 @@ func checkContinuousConnectivity(f *framework.Framework, nodeName, podName, host
 		return
 	}
 
-	err = e2epod.WaitForPodNotPending(f.ClientSet, f.Namespace.Name, podName)
+	err = e2epod.WaitForPodNameRunningInNamespace(f.ClientSet, f.Namespace.Name, podName)
 	if err != nil {
 		errChan <- err
 		return
