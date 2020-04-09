@@ -223,6 +223,8 @@ var _ = Describe("e2e control plane", func() {
 		cmd := exec.Command("docker", "restart", "-t0", "ovn-control-plane")
 		err := cmd.Run()
 
+		time.Sleep(time.Minute)
+
 		framework.ExpectNoError(err)
 
 		framework.ExpectNoError(<-errChan)
