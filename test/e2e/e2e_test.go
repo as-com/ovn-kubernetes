@@ -223,9 +223,11 @@ var _ = Describe("e2e control plane", func() {
 		cmd := exec.Command("docker", "restart", "-t0", "ovn-control-plane")
 		err := cmd.Run()
 
-		time.Sleep(time.Minute)
-
 		framework.ExpectNoError(err)
+
+		framework.Logf("Rebooted control plane container, waiting a few minutes for it to reboot")
+
+		time.Sleep(5 * time.Minute)
 
 		framework.ExpectNoError(<-errChan)
 	})
