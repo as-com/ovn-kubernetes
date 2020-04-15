@@ -323,7 +323,6 @@ func (odbi *ovndb) rowToLogicalPort(uuid string) *LogicalSwitchPort {
 		default:
 			//	glog.V(OVNLOGLEVEL).Info("Unsupport type found in lport dynamic address.")
 		}
-		lp.DynamicAddresses = dynamicAddresses.(string)
 	}
 
 	return lp

@@ -57,11 +57,11 @@ var startMasterUpdaterOnce sync.Once
 
 // RegisterMasterMetrics registers some ovnkube master metrics with the Prometheus
 // registry
-func RegisterMasterMetrics() {
+func RegisterMasterMetrics(stopChan chan struct{}) {
 	registerMasterMetricsOnce.Do(func() {
 		prometheus.MustRegister(metricE2ETimestamp)
 		// following go routine is directly responsible for collecting the metric above.
-		startMasterMetricsUpdater()
+		startMasterMetricsUpdater(stopChan)
 
 		prometheus.MustRegister(metricPodCreationLatency)
 		prometheus.MustRegister(prometheus.NewCounterFunc(
@@ -123,19 +123,35 @@ func scrapeOvnTimestamp() float64 {
 
 // startMasterMetricsUpdater adds a goroutine that updates a "timestamp" value in the
 // nbdb every 30 seconds. This is so we can determine freshness of the database
-func startMasterMetricsUpdater() {
+func startMasterMetricsUpdater(stopChan chan struct{}) {
 	startMasterUpdaterOnce.Do(func() {
 		go func() {
+			tsUpdateTicker := time.NewTicker(30 * time.Second)
 			for {
-				t := time.Now().Unix()
-				_, stderr, err := util.RunOVNNbctl("set", "NB_Global", ".",
-					fmt.Sprintf(`options:e2e_timestamp="%d"`, t))
-				if err != nil {
-					klog.Errorf("failed to bump timestamp: %s (%v)", stderr, err)
-				} else {
-					metricE2ETimestamp.Set(float64(t))
+				select {
+				case <-tsUpdateTicker.C:
+					t := time.Now().Unix()
+					options, err := util.OVNNBDBClient.NBGlobalGetOptions()
+					if err != nil {
+						klog.Errorf("Failed to get options from NB_Global table")
+						continue
+					}
+					options["e2e_timestamp"] = fmt.Sprintf("%d", t)
+					cmd, err := util.OVNNBDBClient.NBGlobalSetOptions(options)
+					if err != nil {
+						klog.Errorf("failed to bump timestamp: %s", err)
+						continue
+					} else {
+						err = cmd.Execute()
+						if err != nil {
+							klog.Errorf("failed to set timestamp: %s", err)
+						} else {
+							metricE2ETimestamp.Set(float64(t))
+						}
+					}
+				case <-stopChan:
+					return
 				}
-				time.Sleep(30 * time.Second)
 			}
 		}()
 	})

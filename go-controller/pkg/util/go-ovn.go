@@ -21,13 +21,13 @@ func InitOVNDBClients() error {
 	case config.OvnDBSchemeSSL:
 		OVNNBDBClient, err = initGoOvnSslClient(config.OvnNorth.Cert,
 			config.OvnNorth.PrivKey, config.OvnNorth.CACert,
-			config.OvnNorth.GetURL())
+			config.OvnNorth.GetURL(), goovn.DBNB)
 		break
 	case config.OvnDBSchemeTCP:
-		OVNNBDBClient, err = initGoOvnTcpClient(config.OvnNorth.GetURL())
+		OVNNBDBClient, err = initGoOvnTcpClient(config.OvnNorth.GetURL(), goovn.DBNB)
 		break
 	case config.OvnDBSchemeUnix:
-		OVNNBDBClient, err = initGoOvnUnixClient(config.OvnNorth.GetURL())
+		OVNNBDBClient, err = initGoOvnUnixClient(config.OvnNorth.GetURL(), goovn.DBNB)
 		break
 	default:
 		klog.Errorf("Invalid db scheme: %s when initializing the OVN NB Client",
@@ -44,13 +44,13 @@ func InitOVNDBClients() error {
 	case config.OvnDBSchemeSSL:
 		OVNSBDBClient, err = initGoOvnSslClient(config.OvnSouth.Cert,
 			config.OvnSouth.PrivKey, config.OvnSouth.CACert,
-			config.OvnSouth.GetURL())
+			config.OvnSouth.GetURL(), goovn.DBSB)
 		break
 	case config.OvnDBSchemeTCP:
-		OVNSBDBClient, err = initGoOvnTcpClient(config.OvnSouth.GetURL())
+		OVNSBDBClient, err = initGoOvnTcpClient(config.OvnSouth.GetURL(), goovn.DBSB)
 		break
 	case config.OvnDBSchemeUnix:
-		OVNSBDBClient, err = initGoOvnUnixClient(config.OvnSouth.GetURL())
+		OVNSBDBClient, err = initGoOvnUnixClient(config.OvnSouth.GetURL(), goovn.DBSB)
 		break
 	default:
 		klog.Errorf("Invalid db scheme: %s when initializing the OVN SB Client",
@@ -65,7 +65,7 @@ func InitOVNDBClients() error {
 	return nil
 }
 
-func initGoOvnSslClient(certFile, privKeyFile, caCertFile, address string) (goovn.Client, error) {
+func initGoOvnSslClient(certFile, privKeyFile, caCertFile, address, db string) (goovn.Client, error) {
 	cert, err := tls.LoadX509KeyPair(certFile, privKeyFile)
 	if err != nil {
 		return nil, fmt.Errorf("Error generating x509 certs for ovndbapi: %s", err)
@@ -76,38 +76,43 @@ func initGoOvnSslClient(certFile, privKeyFile, caCertFile, address string) (goov
 	}
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caCert)
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	}
+	tlsConfig.BuildNameToCertificate()
 	ovndbclient, err := goovn.NewClient(&goovn.Config{
-		Addr: address,
-		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{cert},
-			RootCAs:      caCertPool,
-		},
+		Db:        db,
+		Addr:      address,
+		TLSConfig: tlsConfig,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Error creating SSL OVNDBClient for address %s: %s", address, err)
+		return nil, fmt.Errorf("Error creating SSL OVNDBClient for database %s at address %s: %s", db, address, err)
 	}
-	klog.Infof("Created OVNDB SSL client")
+	klog.Infof("Created OVNDB SSL client for db: %s", db)
 	return ovndbclient, nil
 }
 
-func initGoOvnTcpClient(address string) (goovn.Client, error) {
+func initGoOvnTcpClient(address, db string) (goovn.Client, error) {
 	ovndbclient, err := goovn.NewClient(&goovn.Config{
+		Db:   db,
 		Addr: address,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Error creating TCP OVNDBClient for address %s: %s", address, err)
 	}
-	klog.Infof("Created OVNDB TCP client")
+	klog.Infof("Created OVNDB TCP client for db: %s", db)
 	return ovndbclient, nil
 }
 
-func initGoOvnUnixClient(address string) (goovn.Client, error) {
+func initGoOvnUnixClient(address, db string) (goovn.Client, error) {
 	ovndbclient, err := goovn.NewClient(&goovn.Config{
+		Db:   db,
 		Addr: address,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Error creating OVNDBClient for address %s: %s", address, err)
 	}
-	klog.Infof("Created OVNDB UNIX client")
+	klog.Infof("Created OVNDB UNIX client for db: %s", db)
 	return ovndbclient, nil
 }

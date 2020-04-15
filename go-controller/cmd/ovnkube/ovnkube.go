@@ -235,7 +235,7 @@ func runOvnKube(ctx *cli.Context) error {
 			return fmt.Errorf("Windows is not supported as a master")
 		}
 		// register prometheus metrics exported by the master
-		metrics.RegisterMasterMetrics()
+		metrics.RegisterMasterMetrics(stopChan)
 		ovnController := ovn.NewOvnController(clientset, factory, stopChan)
 		if err := ovnController.Start(clientset, master); err != nil {
 			return err

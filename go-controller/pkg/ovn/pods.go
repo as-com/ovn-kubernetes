@@ -237,8 +237,8 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 	// UUID and and the port cache, address sets, and port groups
 	// will still have the old UUID.
 	lsp, err := util.OVNNBDBClient.LSPGet(portName)
-	if err != nil {
-		return fmt.Errorf("Unable to get the lsp: %s from the nbdb :%s", portName, err)
+	if err != nil && err != goovn.ErrorNotFound {
+		return fmt.Errorf("Unable to get the lsp: %s from the nbdb: %s", portName, err)
 	}
 
 	if lsp == nil {

@@ -182,6 +182,12 @@ type Client interface {
 	// Get encaps by chassis name
 	EncapList(chname string) ([]*Encap, error)
 
+	// Set NB_Global table options
+	NBGlobalSetOptions(options map[string]string) (*OvnCommand, error)
+
+	// Get NB_Global table options
+	NBGlobalGetOptions() (map[string]string, error)
+
 	// Close connection to OVN
 	Close() error
 }
@@ -520,4 +526,12 @@ func (c *ovndb) MeterList() ([]*Meter, error) {
 
 func (c *ovndb) MeterBandsList() ([]*MeterBand, error) {
 	return c.meterBandsListImp()
+}
+
+func (c *ovndb) NBGlobalSetOptions(options map[string]string) (*OvnCommand, error) {
+	return c.nbGlobalSetOptionsImp(options)
+}
+
+func (c *ovndb) NBGlobalGetOptions() (map[string]string, error) {
+	return c.nbGlobalGetOptionsImp()
 }
