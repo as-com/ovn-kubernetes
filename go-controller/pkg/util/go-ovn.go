@@ -22,13 +22,10 @@ func InitOVNDBClients() error {
 		OVNNBDBClient, err = initGoOvnSslClient(config.OvnNorth.Cert,
 			config.OvnNorth.PrivKey, config.OvnNorth.CACert,
 			config.OvnNorth.GetURL(), goovn.DBNB)
-		break
 	case config.OvnDBSchemeTCP:
 		OVNNBDBClient, err = initGoOvnTcpClient(config.OvnNorth.GetURL(), goovn.DBNB)
-		break
 	case config.OvnDBSchemeUnix:
 		OVNNBDBClient, err = initGoOvnUnixClient(config.OvnNorth.GetURL(), goovn.DBNB)
-		break
 	default:
 		klog.Errorf("Invalid db scheme: %s when initializing the OVN NB Client",
 			config.OvnNorth.Scheme)
@@ -45,13 +42,10 @@ func InitOVNDBClients() error {
 		OVNSBDBClient, err = initGoOvnSslClient(config.OvnSouth.Cert,
 			config.OvnSouth.PrivKey, config.OvnSouth.CACert,
 			config.OvnSouth.GetURL(), goovn.DBSB)
-		break
 	case config.OvnDBSchemeTCP:
 		OVNSBDBClient, err = initGoOvnTcpClient(config.OvnSouth.GetURL(), goovn.DBSB)
-		break
 	case config.OvnDBSchemeUnix:
 		OVNSBDBClient, err = initGoOvnUnixClient(config.OvnSouth.GetURL(), goovn.DBSB)
-		break
 	default:
 		klog.Errorf("Invalid db scheme: %s when initializing the OVN SB Client",
 			config.OvnSouth.Scheme)
