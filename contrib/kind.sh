@@ -10,6 +10,8 @@ run_kubectl() {
       break
     fi
 
+    echo "Exit code " $?
+
     ((retries += 1))
     if [[ "${retries}" -gt ${attempts} ]]; then
       echo "error: 'kubectl $*' did not succeed, failing"
