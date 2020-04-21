@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"k8s.io/klog"
 )
 
 // NextIP returns IP incremented by 1
@@ -28,16 +30,28 @@ func intToIP(i *big.Int) net.IP {
 
 // GetPortAddresses returns the MAC and IP of the given logical switch port
 func GetPortAddresses(portName string) (net.HardwareAddr, net.IP, error) {
-	dynamicAddresses, err := OVNNBDBClient.LSPGetDynamicAddresses(portName)
+	lsp, err := OVNNBDBClient.LSPGet(portName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// dynamic addresses have format "0a:00:00:00:00:01 192.168.1.3"
-	// static addresses have format ["0a:00:00:00:00:01 192.168.1.3"]
-	addresses := strings.Split(dynamicAddresses, " ")
+	var addresses []string
+
+	if lsp.DynamicAddresses == "" {
+		addresses = lsp.Addresses
+	} else {
+		// dynamic addresses have format "0a:00:00:00:00:01 192.168.1.3"
+		// static addresses have format ["0a:00:00:00:00:01 192.168.1.3"]
+		addresses = strings.Split(lsp.DynamicAddresses, " ")
+	}
+
+	if len(addresses) == 0 || addresses[0] == "dynamic" {
+		return nil, nil, nil
+	}
+
 	if len(addresses) != 2 {
-		return nil, nil, fmt.Errorf("Error while obtaining addresses for %s", portName)
+		klog.Errorf("Got dynamic address: %s and addresses %v", lsp.DynamicAddresses, lsp.Addresses)
+		return nil, nil, fmt.Errorf("Error while obtaining addresses for %s: %v", portName, addresses)
 	}
 	ip := net.ParseIP(addresses[1])
 	if ip == nil {

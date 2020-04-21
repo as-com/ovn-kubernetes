@@ -188,6 +188,12 @@ type Client interface {
 	// Get NB_Global table options
 	NBGlobalGetOptions() (map[string]string, error)
 
+	// Set SB_Global table options
+	SBGlobalSetOptions(options map[string]string) (*OvnCommand, error)
+
+	// Get SB_Global table options
+	SBGlobalGetOptions() (map[string]string, error)
+
 	// Close connection to OVN
 	Close() error
 }
@@ -534,4 +540,12 @@ func (c *ovndb) NBGlobalSetOptions(options map[string]string) (*OvnCommand, erro
 
 func (c *ovndb) NBGlobalGetOptions() (map[string]string, error) {
 	return c.nbGlobalGetOptionsImp()
+}
+
+func (c *ovndb) SBGlobalSetOptions(options map[string]string) (*OvnCommand, error) {
+	return c.sbGlobalSetOptionsImp(options)
+}
+
+func (c *ovndb) SBGlobalGetOptions() (map[string]string, error) {
+	return c.sbGlobalGetOptionsImp()
 }

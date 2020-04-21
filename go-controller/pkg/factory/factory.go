@@ -410,7 +410,7 @@ const (
 	resyncInterval        = 12 * time.Hour
 	handlerAlive   uint32 = 0
 	handlerDead    uint32 = 1
-	numEventQueues int    = 10
+	numEventQueues int    = 20
 )
 
 var (

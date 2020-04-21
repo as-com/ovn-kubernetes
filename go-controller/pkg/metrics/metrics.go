@@ -8,6 +8,7 @@ import (
 
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	utilwait "k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/klog"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -34,11 +35,14 @@ func StartMetricsServer(bindAddress string, enablePprof bool) {
 	mux.Handle("/metrics", promhttp.Handler())
 
 	if enablePprof {
+		klog.Infof("Metrics profiling is enabled")
 		mux.HandleFunc("/debug/pprof/", pprof.Index)
 		mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
 		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
 		mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 		mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	} else {
+		klog.Infof("Metrics profiling is disabled")
 	}
 
 	go utilwait.Until(func() {

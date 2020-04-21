@@ -106,19 +106,20 @@ func RegisterMasterMetrics(stopChan chan struct{}) {
 }
 
 func scrapeOvnTimestamp() float64 {
-	output, stderr, err := util.RunOVNSbctl("--if-exists",
-		"get", "SB_Global", ".", "options:e2e_timestamp")
+	options, err := util.OVNSBDBClient.SBGlobalGetOptions()
 	if err != nil {
-		klog.Errorf("failed to scrape timestamp: %s (%v)", stderr, err)
+		klog.Errorf("Failed to get global options for the SB_Global table")
 		return 0
 	}
-
-	out, err := strconv.ParseFloat(output, 64)
-	if err != nil {
-		klog.Errorf("failed to parse timestamp %s: %v", output, err)
-		return 0
+	if val, ok := options["e2e_timestamp"]; ok {
+		out, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			klog.Errorf("failed to parse timestamp %s: %v", val, err)
+			return 0
+		}
+		return out
 	}
-	return out
+	return 0
 }
 
 // startMasterMetricsUpdater adds a goroutine that updates a "timestamp" value in the
@@ -130,12 +131,12 @@ func startMasterMetricsUpdater(stopChan chan struct{}) {
 			for {
 				select {
 				case <-tsUpdateTicker.C:
-					t := time.Now().Unix()
 					options, err := util.OVNNBDBClient.NBGlobalGetOptions()
 					if err != nil {
-						klog.Errorf("Failed to get options from NB_Global table")
+						klog.Errorf("Can't get existing options for updating timestamps")
 						continue
 					}
+					t := time.Now().Unix()
 					options["e2e_timestamp"] = fmt.Sprintf("%d", t)
 					cmd, err := util.OVNNBDBClient.NBGlobalSetOptions(options)
 					if err != nil {

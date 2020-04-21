@@ -147,7 +147,7 @@ func waitForPodAddresses(portName string) (net.HardwareAddr, net.IP, error) {
 	}
 
 	if err != nil || podMac == nil || podIP == nil {
-		return nil, nil, fmt.Errorf("Error while obtaining addresses for %s: %v", portName, err)
+		return nil, nil, fmt.Errorf("Cannot get addresses for port: %s, error: %s", portName, err)
 	}
 
 	return podMac, podIP, nil
