@@ -229,7 +229,6 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 
 	var podMac net.HardwareAddr
 	var podCIDR *net.IPNet
-	var gatewayCIDR *net.IPNet
 	var cmds []*goovn.OvnCommand
 
 	// Check if the pod's logical switch port already exists. If it
@@ -257,7 +256,7 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 
 		// If the pod already has annotations use the existing static
 		// IP/MAC from the annotation.
-		addresses := []string{fmt.Sprintf("%s", podMac), fmt.Sprintf("%s", annotation.IP.IP)}
+		addresses := []string{podMac.String(), podCIDR.IP.String()}
 		lspSetAddrCmd, err := util.OVNNBDBClient.LSPSetAddress(portName, addresses...)
 		if err != nil {
 			return fmt.Errorf("Unable to create LSPSetAddress command for port: %s", portName)
@@ -268,8 +267,6 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 		}
 		cmds = append(cmds, lspSetAddrCmd, lspSetDynamicAddrCommand)
 	} else {
-		gatewayCIDR, _ = util.GetNodeWellKnownAddresses(nodeSubnet)
-
 		addresses := make([]string, 0)
 
 		networks, err := util.GetPodNetSelAnnotation(pod, util.DefNetworkAnnotation)
@@ -332,8 +329,8 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 	portInfo := oc.logicalPortCache.add(logicalSwitch, portName, lsp.UUID, podMac, podCIDR.IP)
 
 	// Set the port security for the logical switch port
-	addresses := []string{fmt.Sprintf("%s", podMac), fmt.Sprintf("%s", podCIDR.IP)}
-	lspPortSecurityCmd, err := util.OVNNBDBClient.LSPSetPortSecurity(portName, addresses...)
+	portSecurityAddresses := []string{podMac.String(), podCIDR.IP.String()}
+	lspPortSecurityCmd, err := util.OVNNBDBClient.LSPSetPortSecurity(portName, portSecurityAddresses...)
 	if err != nil {
 		return fmt.Errorf("Unable to create LSPSetPortSecurity command for port: %s", portName)
 	}
