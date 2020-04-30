@@ -201,25 +201,42 @@ func (odbi *ovndb) lspSetOptionsImp(lsp string, options map[string]string) (*Ovn
 		return nil, fmt.Errorf("LSP name cannot be empty while setting options")
 	}
 
-	mutatemap, err := libovsdb.NewOvsMap(options)
+	optionsMap, err := libovsdb.NewOvsMap(options)
 	if err != nil {
 		return nil, err
 	}
 
 	row := make(OVNRow)
-	row["options"] = mutatemap
+	row["options"] = optionsMap
 
 	condition := libovsdb.NewCondition("name", "==", lsp)
 
 	// simple mutate operation
-	mutateOp := libovsdb.Operation{
+	updateOp := libovsdb.Operation{
 		Op:    opUpdate,
 		Table: tableLogicalSwitchPort,
 		Row:   row,
 		Where: []interface{}{condition},
 	}
-	operations := []libovsdb.Operation{mutateOp}
+	operations := []libovsdb.Operation{updateOp}
 	return &OvnCommand{operations, odbi, make([][]map[string]interface{}, len(operations))}, nil
+}
+
+func (odbi *ovndb) lspGetOptionsImp(lsp string) (map[string]string, error) {
+	lp, err := odbi.lspGetImp(lsp)
+	if err != nil {
+		return nil, err
+	}
+	options := make(map[string]string)
+	for k, v := range lp.Options {
+		key, keyOk := k.(string)
+		value, valueOk := v.(string)
+		if !keyOk || !valueOk {
+			continue
+		}
+		options[key] = value
+	}
+	return options, nil
 }
 
 func (odbi *ovndb) lspSetDynamicAddressesImp(lsp string, address string) (*OvnCommand, error) {
@@ -257,24 +274,24 @@ func (odbi *ovndb) lspSetExternalIdsImp(lsp string, external_ids map[string]stri
 		return nil, fmt.Errorf("LSP name cannot be empty while setting external_ids")
 	}
 
-	mutatemap, err := libovsdb.NewOvsMap(external_ids)
+	externalIdsMap, err := libovsdb.NewOvsMap(external_ids)
 	if err != nil {
 		return nil, err
 	}
 
 	row := make(OVNRow)
-	row["external_ids"] = mutatemap
+	row["external_ids"] = externalIdsMap
 
 	condition := libovsdb.NewCondition("name", "==", lsp)
 
 	// simple mutate operation
-	mutateOp := libovsdb.Operation{
+	updateOp := libovsdb.Operation{
 		Op:    opUpdate,
 		Table: tableLogicalSwitchPort,
 		Row:   row,
 		Where: []interface{}{condition},
 	}
-	operations := []libovsdb.Operation{mutateOp}
+	operations := []libovsdb.Operation{updateOp}
 	return &OvnCommand{operations, odbi, make([][]map[string]interface{}, len(operations))}, nil
 }
 
