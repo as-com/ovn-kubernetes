@@ -9,6 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
+	"k8s.io/klog"
 )
 
 const (
@@ -37,11 +38,17 @@ func NewFakeOVN(fexec *ovntest.FakeExec) *FakeOVN {
 func (o *FakeOVN) start(ctx *cli.Context, objects ...runtime.Object) {
 	_, err := config.InitConfig(ctx, o.fakeExec, nil)
 	Expect(err).NotTo(HaveOccurred())
+	err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+	Expect(err).NotTo(HaveOccurred())
+	err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+	Expect(err).NotTo(HaveOccurred())
+
+	klog.V(5).Infof("OVN North Config %v", config.OvnNorth)
+	klog.V(5).Infof("OVN South Config %v", config.OvnSouth)
 
 	o.fakeClient = fake.NewSimpleClientset(objects...)
 	err = util.InitOVNDBClients()
 	Expect(err).NotTo(HaveOccurred())
-
 	o.init()
 }
 

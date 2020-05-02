@@ -236,7 +236,7 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 	// UUID and and the port cache, address sets, and port groups
 	// will still have the old UUID.
 	lsp, err := util.OVNNBDBClient.LSPGet(portName)
-	if err != nil && err != goovn.ErrorNotFound {
+	if err != nil && err != goovn.ErrorNotFound && err != goovn.ErrorSchema {
 		return fmt.Errorf("Unable to get the lsp: %s from the nbdb: %s", portName, err)
 	}
 
@@ -244,7 +244,10 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 		lspAddCmd, err := util.OVNNBDBClient.LSPAdd(logicalSwitch, portName)
 		if err != nil {
 			return fmt.Errorf("Unable to create the LSPAdd command for port: %s from the nbdb", portName)
+		} else {
+			klog.Infof("Created LSPAdd cmd for port: %s", portName)
 		}
+
 		cmds = append(cmds, lspAddCmd)
 	}
 
@@ -299,6 +302,8 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) error {
 	if err != nil {
 		return fmt.Errorf("Error while creating logical port %s error: %s",
 			portName, err)
+	} else {
+		klog.Infof("Created lsp entry for logical port %s", portName)
 	}
 
 	// If the pod has not already been assigned addresses, read them now

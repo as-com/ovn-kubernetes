@@ -6,10 +6,12 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/urfave/cli/v2"
 
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/kube"
 	ovntest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
 
@@ -118,7 +120,12 @@ var _ = Describe("Management Port Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &existingNode)
 			wg := &sync.WaitGroup{}
 			waitErrors := make(chan error)

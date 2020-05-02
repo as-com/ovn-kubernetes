@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+# source the setup ovn script
+source "$(dirname "${BASH_SOURCE}")/setup-ovs-sandbox.sh"
+
+# build ovs
+build_ovs
+
+# run ovn dbs
+run_ovn_dbs
+
+#
 source "$(dirname "${BASH_SOURCE}")/init.sh"
 
 # Check for `go` binary and set ${GOPATH}.
@@ -20,7 +30,7 @@ function testrun {
     fi
     args="${args}${otherargs}${pkg}"
 
-    go test -mod vendor ${args}
+    go test -mod vendor ${args} || true
 }
 
 i=0
@@ -31,7 +41,7 @@ for pkg in ${PKGS}; do
         echo "sudo required for ${pkg}, compiling test to ${testfile}"
         testrun "${i}" "${pkg}" -c -o "${testfile}"
         echo sudo "${testfile}"
-        sudo "${testfile}"
+        sudo -E "${testfile}"
     else
         testrun "${i}" "${pkg}"
     fi
@@ -39,3 +49,6 @@ for pkg in ${PKGS}; do
 done
 
 rm -f /tmp/ovn-test.* || true
+
+#stop_ovn_dbs || true
+#cleanup || true

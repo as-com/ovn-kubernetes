@@ -32,6 +32,7 @@ func intToIP(i *big.Int) net.IP {
 func GetPortAddresses(portName string) (net.HardwareAddr, net.IP, error) {
 	lsp, err := OVNNBDBClient.LSPGet(portName)
 	if err != nil {
+		klog.Infof("Still getting schema error for port: %s, error: %s", portName, err)
 		return nil, nil, err
 	}
 

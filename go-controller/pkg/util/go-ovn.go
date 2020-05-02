@@ -122,7 +122,7 @@ func initGoOvnUnixClient(address, db string) (goovn.Client, error) {
 		DisconnectCB: disconnectCb,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Error creating OVNDBClient for address %s: %s", address, err)
+		return nil, fmt.Errorf("Error creating UNIX OVNDBClient for address %s: %s", address, err)
 	}
 	klog.Infof("Created OVNDB UNIX client for db: %s", db)
 	return ovndbclient, nil

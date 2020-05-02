@@ -121,7 +121,12 @@ func testManagementPort(ctx *cli.Context, fexec *ovntest.FakeExec, testNS ns.Net
 
 	_, err = config.InitConfig(ctx, fexec, nil)
 	Expect(err).NotTo(HaveOccurred())
-
+	err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+	Expect(err).NotTo(HaveOccurred())
+	err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+	Expect(err).NotTo(HaveOccurred())
+	err = util.InitOVNDBClients()
+	Expect(err).NotTo(HaveOccurred())
 	nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &existingNode)
 	waiter := newStartupWaiter()
 

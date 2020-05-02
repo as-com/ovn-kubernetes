@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/url"
 	"os"
@@ -315,6 +316,84 @@ func init() {
 	Flags = append(Flags, OVNGatewayFlags...)
 	Flags = append(Flags, MasterHAFlags...)
 	Flags = append(Flags, HybridOverlayFlags...)
+}
+
+// populateTestAuthConfig takes an auth config and ovn db and socket env vars and builds
+// the ovn auth config from it.
+func populateTestAuthConfig(authCfg *OvnAuthConfig, ovn_db, ovn_socket string) error {
+	const (
+		defaultClientCACert  = "/etc/openvswitch/client_ca_cert.pem"
+		defaultClientPrivKey = "/etc/openvswitch/ovnnb-privkey.pem"
+		SKIP_TLS_VERIFY      = true
+		SSL                  = "ssl"
+		TCP                  = "tcp"
+		UNIX                 = "unix"
+		OVS_TEST_RUN_DIR     = "/var/run/openvswitch"
+	)
+
+	ovs_rundir := os.Getenv("OVS_RUNDIR")
+
+	if ovs_rundir == "" {
+		ovs_rundir = OVS_TEST_RUN_DIR
+	}
+
+	if ovn_db == "" {
+		authCfg.Address = UNIX + ":" + ovs_rundir + "/" + ovn_socket
+		authCfg.Scheme = OvnDBSchemeUnix
+	} else {
+		strs := strings.Split(ovn_db, ":")
+		if len(strs) < 2 || len(strs) > 3 {
+			log.Fatal("Unexpected format of $OVN_NB/SB_DB")
+		}
+		if len(strs) == 2 {
+			authCfg.Address = UNIX + ":" + ovs_rundir + "/" + strs[1]
+			authCfg.Scheme = OvnDBSchemeUnix
+		} else {
+			port, _ := strconv.Atoi(strs[2])
+			protocol := strs[0]
+			if protocol == SSL {
+				clientCACert := os.Getenv("CLIENT_CERT_CA_CERT")
+				if clientCACert == "" {
+					clientCACert = defaultClientCACert
+				}
+				clientPrivKey := os.Getenv("CLIENT_PRIVKEY")
+				if clientPrivKey == "" {
+					clientPrivKey = defaultClientPrivKey
+				}
+				authCfg.PrivKey = clientPrivKey
+				authCfg.Cert = clientCACert
+				authCfg.CACert = clientCACert
+				authCfg.Scheme = OvnDBSchemeSSL
+			} else if protocol == TCP {
+				authCfg.Scheme = OvnDBSchemeTCP
+			}
+			authCfg.Address = fmt.Sprintf("%s:%s:%d", strs[0], strs[1], port)
+		}
+	}
+	return nil
+}
+
+// populateOvnNorthTestConfig uses env. variables to parse and populate the
+// Ovn North configuration
+func PopulateOvnNorthTestConfig(ovnAuthCfg *OvnAuthConfig) error {
+	const OVNNB_TEST_SOCKET = "nb1.ovsdb"
+	if ovnAuthCfg == nil {
+		return fmt.Errorf("Invalid auth config passed for setting config")
+	}
+	ovnAuthCfg.northbound = true
+	return populateTestAuthConfig(ovnAuthCfg, os.Getenv("OVN_NB_DB"), OVNNB_TEST_SOCKET)
+}
+
+// populateOvnSouthTestConfig uses env. variables to parse and populate the
+// Ovn South configuration
+
+func PopulateOvnSouthTestConfig(ovnAuthCfg *OvnAuthConfig) error {
+	const OVNSB_TEST_SOCKET = "sb1.ovsdb"
+	if ovnAuthCfg == nil {
+		return fmt.Errorf("Invalid auth config passed for setting config")
+	}
+	ovnAuthCfg.northbound = false
+	return populateTestAuthConfig(ovnAuthCfg, os.Getenv("OVN_SB_DB"), OVNSB_TEST_SOCKET)
 }
 
 // PrepareTestConfig restores default config values. Used by testcases to

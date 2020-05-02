@@ -250,6 +250,13 @@ var _ = Describe("Master Operations", func() {
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
 
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
+
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &testNode)
 			err = util.SetL3GatewayConfig(nodeAnnotator, &util.L3GatewayConfig{Mode: config.GatewayModeDisabled})
 			Expect(err).NotTo(HaveOccurred())
@@ -334,7 +341,12 @@ var _ = Describe("Master Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &testNode)
 			err = util.SetL3GatewayConfig(nodeAnnotator, &util.L3GatewayConfig{Mode: config.GatewayModeDisabled})
 			Expect(err).NotTo(HaveOccurred())
@@ -418,7 +430,12 @@ var _ = Describe("Master Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &testNode)
 			err = util.SetL3GatewayConfig(nodeAnnotator, &util.L3GatewayConfig{Mode: config.GatewayModeDisabled})
 			Expect(err).NotTo(HaveOccurred())
@@ -601,7 +618,12 @@ subnet=%s
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &masterNode)
 			err = util.SetL3GatewayConfig(nodeAnnotator, &util.L3GatewayConfig{Mode: config.GatewayModeDisabled})
 			Expect(err).NotTo(HaveOccurred())
@@ -704,7 +726,12 @@ var _ = Describe("Gateway Init Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &testNode)
 			ifaceID := localnetBridgeName + "_" + nodeName
 			err = util.SetL3GatewayConfig(nodeAnnotator, &util.L3GatewayConfig{
@@ -888,7 +915,12 @@ var _ = Describe("Gateway Init Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			nodeAnnotator := kube.NewNodeAnnotator(&kube.Kube{fakeClient}, &testNode)
 			ifaceID := physicalBridgeName + "_" + nodeName
 			vlanID := uint(1024)

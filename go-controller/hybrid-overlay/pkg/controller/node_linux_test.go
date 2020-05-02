@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v2"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
@@ -141,6 +141,13 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 			_, err := config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
 
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
+
 			stopChan := make(chan struct{})
 			f, err := factory.NewWatchFactory(fakeClient, stopChan)
 			Expect(err).NotTo(HaveOccurred())
@@ -193,6 +200,12 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 
 			stopChan := make(chan struct{})
 			f, err := factory.NewWatchFactory(fakeClient, stopChan)
@@ -237,6 +250,12 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 			})
 
 			_, err := config.InitConfig(ctx, fexec, nil)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
 			Expect(err).NotTo(HaveOccurred())
 
 			stopChan := make(chan struct{})
@@ -292,6 +311,12 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 
 			_, err := config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 
 			stopChan := make(chan struct{})
 			f, err := factory.NewWatchFactory(fakeClient, stopChan)
@@ -344,6 +369,12 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 
 			_, err := config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 
 			stopChan := make(chan struct{})
 			f, err := factory.NewWatchFactory(fakeClient, stopChan)
@@ -390,6 +421,12 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 			})
 
 			_, err := config.InitConfig(ctx, fexec, nil)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
 			Expect(err).NotTo(HaveOccurred())
 
 			stopChan := make(chan struct{})
@@ -439,6 +476,12 @@ var _ = Describe("Hybrid Overlay Node Linux Operations", func() {
 			})
 
 			_, err := config.InitConfig(ctx, fexec, nil)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
 			Expect(err).NotTo(HaveOccurred())
 
 			stopChan := make(chan struct{})

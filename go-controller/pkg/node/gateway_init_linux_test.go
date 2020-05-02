@@ -126,7 +126,12 @@ cookie=0x0, duration=8366.597s, table=1, n_packets=10641, n_bytes=10370087, prio
 
 		_, err = config.InitConfig(ctx, fexec, nil)
 		Expect(err).NotTo(HaveOccurred())
-
+		err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+		Expect(err).NotTo(HaveOccurred())
+		err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+		Expect(err).NotTo(HaveOccurred())
+		err = util.InitOVNDBClients()
+		Expect(err).NotTo(HaveOccurred())
 		existingNode := v1.Node{ObjectMeta: metav1.ObjectMeta{
 			Name: nodeName,
 		}}
@@ -287,7 +292,12 @@ var _ = Describe("Gateway Init Operations", func() {
 
 			_, err = config.InitConfig(ctx, fexec, nil)
 			Expect(err).NotTo(HaveOccurred())
-
+			err = config.PopulateOvnNorthTestConfig(&config.OvnNorth)
+			Expect(err).NotTo(HaveOccurred())
+			err = config.PopulateOvnSouthTestConfig(&config.OvnSouth)
+			Expect(err).NotTo(HaveOccurred())
+			err = util.InitOVNDBClients()
+			Expect(err).NotTo(HaveOccurred())
 			existingNode := v1.Node{ObjectMeta: metav1.ObjectMeta{
 				Name: nodeName,
 			}}
