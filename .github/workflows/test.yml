@@ -87,10 +87,10 @@ jobs:
     - name: Cache Kubernetes
       id: cache-k8s
       if: github.event_name == 'push' || github.event_name == 'pull_request'
-      uses: actions/cache@v1
+      uses: actions/cache@9eb452c28000c25878dae9fab48dc007cdd3df0e
       with:
         path: ${{ env.GOPATH }}/src/k8s.io/kubernetes/
-        key: k8s-go-2-${{ env.K8S_VERSION }}
+        key: k8s-go-3-${{ env.K8S_VERSION }}
 
     - name: Set up Go
       uses: actions/setup-go@v1
@@ -153,10 +153,10 @@ jobs:
   
     - name: Restore Kubernetes from cache
       id: cache-k8s
-      uses: actions/cache@v1
+      uses: actions/cache@9eb452c28000c25878dae9fab48dc007cdd3df0e
       with:
         path: "${{ env.GOPATH }}/src/k8s.io/kubernetes/"
-        key: k8s-go-2-${{ env.K8S_VERSION }}
+        key: k8s-go-3-${{ env.K8S_VERSION }}
 
     # Re-build if kube wasn't in the cache due to
     # https://github.com/actions/cache/issues/107#issuecomment-598188250
