@@ -27,7 +27,7 @@ should set TCP CLOSE_WAIT timeout
 \[Feature:IPv6DualStackAlphaFeature\]
 
 # TO BE IMPLEMENTED: https://github.com/ovn-org/ovn-kubernetes/issues/819
-Services.+session affinity
+#Services.+session affinity
 
 # TO BE IMPLEMENTED: https://github.com/ovn-org/ovn-kubernetes/issues/1116
 EndpointSlices
