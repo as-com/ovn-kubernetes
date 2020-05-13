@@ -3,7 +3,6 @@ package e2e_test
 import (
 	"fmt"
 	"net/http"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -211,7 +210,7 @@ var _ = Describe("e2e control plane", func() {
 		framework.ExpectNoError(<-errChan)
 	})
 
-	ginkgo.It("should provide Internet connection continuously when master node is rebooted", func() {
+	ginkgo.It("should provide Internet connection continuously when master node is rebooted, kinda", func() {
 		ginkgo.By("Running container which tries to connect to 8.8.8.8 in a loop")
 
 		podChan, errChan := make(chan *v1.Pod), make(chan error)
@@ -220,14 +219,22 @@ var _ = Describe("e2e control plane", func() {
 		testPod := <-podChan
 		framework.Logf("Test pod running on %q", testPod.Spec.NodeName)
 
-		cmd := exec.Command("docker", "restart", "-t0", "ovn-control-plane")
-		err := cmd.Run()
+		podClient := f.ClientSet.CoreV1().Pods("ovn-kubernetes")
 
-		framework.ExpectNoError(err)
+		podList, _ := podClient.List(metav1.ListOptions{})
+		for _, pod := range podList.Items {
+			if pod.Spec.NodeName == "ovn-control-plane" {
+				err := podClient.Delete(pod.Name, metav1.NewDeleteOptions(0))
+				framework.ExpectNoError(err, "should delete control plane pod")
+				framework.Logf("Deleted control plane pod %q", pod.Name)
 
-		framework.Logf("Rebooted control plane container, waiting a few minutes for it to reboot")
+				break
+			}
+		}
 
-		time.Sleep(5 * time.Minute)
+		framework.Logf("Killed all pods running on node ovn-control-plane , waiting a few minutes for it to reboot")
+
+		time.Sleep(3 * time.Minute)
 
 		framework.ExpectNoError(<-errChan)
 	})
