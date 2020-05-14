@@ -219,12 +219,14 @@ var _ = Describe("e2e control plane", func() {
 		testPod := <-podChan
 		framework.Logf("Test pod running on %q", testPod.Spec.NodeName)
 
-		podClient := f.ClientSet.CoreV1().Pods("ovn-kubernetes")
+		podClient := f.ClientSet.CoreV1().Pods("")
 
 		podList, _ := podClient.List(metav1.ListOptions{})
 		for _, pod := range podList.Items {
 			if pod.Spec.NodeName == "ovn-control-plane" {
-				err := podClient.Delete(pod.Name, metav1.NewDeleteOptions(0))
+				framework.Logf("%q", pod.Namespace)
+				podClient2 := f.ClientSet.CoreV1().Pods(pod.Namespace)
+				err := podClient2.Delete(pod.Name, metav1.NewDeleteOptions(0))
 				framework.ExpectNoError(err, "should delete control plane pod")
 				framework.Logf("Deleted control plane pod %q", pod.Name)
 
