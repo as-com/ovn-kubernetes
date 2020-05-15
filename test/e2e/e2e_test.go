@@ -223,7 +223,7 @@ var _ = Describe("e2e control plane", func() {
 
 		podList, _ := podClient.List(metav1.ListOptions{})
 		for _, pod := range podList.Items {
-			if pod.Spec.NodeName == "ovn-control-plane" {
+			if pod.Spec.NodeName == "ovn-control-plane" && pod.Name != "connectivity-test-continuous" {
 				framework.Logf("%q", pod.Namespace)
 				podClient2 := f.ClientSet.CoreV1().Pods(pod.Namespace)
 				err := podClient2.Delete(pod.Name, metav1.NewDeleteOptions(0))
