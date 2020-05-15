@@ -229,8 +229,6 @@ var _ = Describe("e2e control plane", func() {
 				err := podClient2.Delete(pod.Name, metav1.NewDeleteOptions(0))
 				framework.ExpectNoError(err, "should delete control plane pod")
 				framework.Logf("Deleted control plane pod %q", pod.Name)
-
-				break
 			}
 		}
 
