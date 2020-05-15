@@ -219,6 +219,8 @@ var _ = Describe("e2e control plane", func() {
 		testPod := <-podChan
 		framework.Logf("Test pod running on %q", testPod.Spec.NodeName)
 
+		time.Sleep(5 * time.Second)
+
 		podClient := f.ClientSet.CoreV1().Pods("")
 
 		podList, _ := podClient.List(metav1.ListOptions{})
@@ -232,9 +234,7 @@ var _ = Describe("e2e control plane", func() {
 			}
 		}
 
-		framework.Logf("Killed all pods running on node ovn-control-plane , waiting a few minutes for it to reboot")
-
-		time.Sleep(3 * time.Minute)
+		framework.Logf("Killed all pods running on node ovn-control-plane")
 
 		framework.ExpectNoError(<-errChan)
 	})
