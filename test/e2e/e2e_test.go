@@ -236,6 +236,9 @@ var _ = Describe("e2e control plane", func() {
 
 		framework.Logf("Killed all pods running on node ovn-control-plane")
 
+		podList, _ = podClient.List(metav1.ListOptions{})
+		framework.Logf("Currently running pods: %q", podList)
+
 		framework.ExpectNoError(<-errChan)
 	})
 })
